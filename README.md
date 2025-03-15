@@ -1,0 +1,2 @@
+# stockfishPHP
+API for stockfish
