@@ -10,7 +10,8 @@ class stockfish
 	public function __construct($EXE = "C:/stockfish/stockfish.exe")
 		{		
 		$this->EXE		= $EXE;
-		$this-> STDOUT = dirname(__FILE__) . DIRECTORY_SEPARATOR . uniqid('stdout-', true) . ".txt";
+		$this->id = uniqid('', true);
+		$this-> STDOUT = dirname(__FILE__) . DIRECTORY_SEPARATOR . ".stdout" . DIRECTORY_SEPARATOR . 'stdout-' . $this->id . ".txt";
 		touch($this->STDOUT); # empty
 		/* standard streaming of pipes has blocking issues in Windoze
 		Best to try and grab STDOUT from a file
@@ -93,7 +94,7 @@ class stockfish
 
 	public function setOption($key="UCI_LimitStrength",$value="true")
 		{
-		$this->out["option"][$option] = $value;
+		$this->payload["option"][$key] = $value;
 		$cmd = "setoption name {option} value {value}";
 		$cmd = str_replace("{option}", $key, $cmd);
 		$cmd = str_replace("{value}",  $value,  $cmd);
@@ -104,6 +105,7 @@ class stockfish
 	public function evalPosition ($fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 		{
 		$this->sendCommand("uci");
+		$this->sendCommand("ucinewgame");
 		$this->sendCommand("position fen ".$fen);
 		$this->sendCommand("eval");
 		$this->isComplete("Final evaluation");
@@ -112,13 +114,24 @@ class stockfish
 		
 		}
 	
-	public function findBestMove ($fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", $method = "depth 10")
+	public function findBestMove ($fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", $method = "depth 10", $elo = 0)
 		{
 		$this->sendCommand("uci");
+		$this->sendCommand("ucinewgame");
+		if($elo > 0)
+			{
+			if($elo < 1320) { $elo = 1500; } # minimum 
+			if($elo < 3000) # this is approaching maximum
+				{
+				$this->setOption("UCI_LimitStrength","true");
+				$this->setOption("UCI_Elo",$elo);
+				}
+			}
+		
 		$this->sendCommand("position fen ".$fen);
 		$this->sendCommand("go ".$method);
 		$this->isComplete("bestmove");
-		$this->payload = $this->parseBestMove();
+		$this->payload["bestmove"] = $this->parseBestMove();
 		
 		} 
 	
@@ -178,6 +191,8 @@ class stockfish
 		
 		$this->now = microtime(true); 
 		$this->time = $this->now - $this->start;
+		$this->payload["id"] = $this->id;
+		$this->payload["time"] = $this->time;
 		}
 	
 	}
