@@ -14,11 +14,26 @@ $fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 if(isset($_GET["fen"])) 	{ $fen = $_GET["fen"]; }
 
 $chess->setupBoard($fen); 
-	# for hacking, let's place the bishop at b4 
+
+	# for hacking, let's place the bishop at d4 
 	$chess->board["rank"]["4"]["d"] = $chess->board["file"]["d"]["4"] = "B"; # black bishop on dark squares ...
 	
-$chess->getPossibleMoves("d4");
+	# for hacking, let's place the rook at d4 
+	$chess->board["rank"]["4"]["d"] = $chess->board["file"]["d"]["4"] = "r"; # white rook ...
 	
+	# for hacking, let's place the rook at d4 
+	$chess->board["rank"]["4"]["d"] = $chess->board["file"]["d"]["4"] = "q"; # white q ...
+
+$info = $chess->getPossibleMoves("d4");
+
+	
+	# for hacking, let's place the knight at d4 
+	#$chess->board["rank"]["3"]["f"] = $chess->board["file"]["f"]["3"] = "N"; # black knight ...
+#$info = $chess->getPossibleMoves("f3");
+	
+	
+print_r($info);	
+
 /*
 $piece = $chess->getPieceAtPosition("e2");
 $color = $chess->getPieceColor($piece);
