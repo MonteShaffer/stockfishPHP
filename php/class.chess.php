@@ -46,7 +46,7 @@ class chess
 		{
 		$piece = $this->getPieceAtPosition($mloc);
 		$color = $this->getPieceColor($piece);
-		echo"\n\n mloc: $mloc \t\t who: $who \t\t piece: $piece \t\t color: $color \n\n";
+		#echo"\n\n mloc: $mloc \t\t who: $who \t\t piece: $piece \t\t color: $color \n\n";
 		if($piece == $this->blank) 
 			{ 
 			if($who == "w") { $this->whiteAttacks[] = $mloc; }
@@ -299,7 +299,7 @@ class chess
 		$rank = $this->getRank($loc);
 		$file = $this->getFile($loc);
 		
-		echo("\n piece: ".$piece."\t color: ".$color."\t\t file: ".$file."\t rank: ".$rank."\t\t\t loc: ".$loc." \t\t prev: ".$prev."\n\n");
+		# echo("\n piece: ".$piece."\t color: ".$color."\t\t file: ".$file."\t rank: ".$rank."\t\t\t loc: ".$loc." \t\t prev: ".$prev."\n\n");
 		
 		$fidx = array_search($file, $this->letA);
 		$ridx = array_search($rank, $this->numA);
@@ -420,7 +420,7 @@ class chess
 				# do a once-removed recursion of a similar board (cloned to see for isPinned???
 				
 				
-				echo"\n ########### KING loc $loc color $color ########### \n";
+				# echo"\n ########### KING loc $loc color $color ########### \n";
 				
 				# option 1 (-1,1) TopLeft for white
 				$x = $fidx - 1; $y = $ridx + 1 *$sign;
@@ -428,7 +428,7 @@ class chess
 					if($mloc)
 						{ 
 						$status = $this->isBlank($mloc, $color);
-						echo"\n\n 1 KING $loc ($mloc) $color :: $status \n\n";
+						# echo"\n\n 1 KING $loc ($mloc) $color :: $status \n\n";
 						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
@@ -447,7 +447,7 @@ class chess
 						{ 
 						$status = $this->isBlank($mloc, $color);
 						
-						echo"\n\n 2 KING $loc ($mloc) $color :: $status \n\n";
+						# echo"\n\n 2 KING $loc ($mloc) $color :: $status \n\n";
 						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
@@ -466,7 +466,7 @@ class chess
 						{ 
 						$status = $this->isBlank($mloc, $color);
 						
-						echo"\n\n 3 KING $loc ($mloc) $color :: $status \n\n";
+						# echo"\n\n 3 KING $loc ($mloc) $color :: $status \n\n";
 						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
@@ -485,7 +485,7 @@ class chess
 						{ 
 						$status = $this->isBlank($mloc, $color);
 						
-						echo"\n\n 4 KING $loc ($mloc) $color :: $status \n\n";
+						# echo"\n\n 4 KING $loc ($mloc) $color :: $status \n\n";
 						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
@@ -504,7 +504,7 @@ class chess
 						{ 
 						$status = $this->isBlank($mloc, $color);
 						
-						echo"\n\n 5 KING $loc ($mloc) $color :: $status \n\n";
+						# echo"\n\n 5 KING $loc ($mloc) $color :: $status \n\n";
 						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
@@ -523,7 +523,7 @@ class chess
 						{ 
 						$status = $this->isBlank($mloc, $color);
 						
-						echo"\n\n 6 KING $loc ($mloc) $color :: $status \n\n";
+						# echo"\n\n 6 KING $loc ($mloc) $color :: $status \n\n";
 						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
@@ -542,7 +542,7 @@ class chess
 						{ 
 						$status = $this->isBlank($mloc, $color);
 						
-						echo"\n\n 7 KING $loc ($mloc) $color :: $status \n\n";
+						# echo"\n\n 7 KING $loc ($mloc) $color :: $status \n\n";
 						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
@@ -561,7 +561,7 @@ class chess
 						{ 
 						$status = $this->isBlank($mloc, $color);
 						
-						echo"\n\n 8 KING $loc ($mloc) $color :: $status \n\n";
+						# echo"\n\n 8 KING $loc ($mloc) $color :: $status \n\n";
 						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
@@ -778,7 +778,8 @@ class chess
 		{
 		$move = array(); # let's store the full information 
 		# was the move from e2 or e3 (lookup options on board rank/file)
-		
+		# e4 means the "pawn moved to e4" from where?  ???
+		# you have to know the board position (setupBoard + basicAnalysis) to know this???
 		
 		}
 		
@@ -793,7 +794,7 @@ class chess
 			{
 			foreach($locs as $loc)
 				{
-				echo"\n ################ loc: $loc ################ \n";
+				# echo"\n ################ loc: $loc ################ \n";
 				$info = $this->getPossibleMoves($loc);
 				$this->moveinfo["w"][$loc] = $info;
 				if(sizeof($info["moves"]) > 0)
@@ -806,7 +807,7 @@ class chess
 			{
 			foreach($locs as $loc)
 				{
-				echo"\n ################ loc: $loc ################ \n";
+				# echo"\n ################ loc: $loc ################ \n";
 				
 				$info = $this->getPossibleMoves($loc);
 				$this->moveinfo["b"][$loc] = $info;
