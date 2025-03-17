@@ -178,7 +178,7 @@ class chess
 		#print_r($captures);
 		
 		
-		return array("moves"=>$moves,"captures"=>$captures);	
+		return array("moves"=>$moves,"captures"=>$captures,"protects"=>$protects);	
 		}
 	public function getRookMoves ($loc = "e2", $prev = "") 
 		{
@@ -281,7 +281,7 @@ class chess
 		#print_r($captures);
 		
 		
-		return array("moves"=>$moves,"captures"=>$captures);	
+		return array("moves"=>$moves,"captures"=>$captures,"protects"=>$protects);	
 		}
 	
 	
@@ -387,6 +387,18 @@ class chess
 			
 			case "R":
 				return $this->getRookMoves($loc, $prev);
+			break;
+			
+			case "Q":
+				{
+				# so getMovesQueen does both above functions
+				$b = $this->getBishopMoves($loc,$prev);
+				$r = $this->getRookMoves($loc,$prev);
+				
+				$moves = array_merge($b["moves"], $r["moves"]);
+				$captures = array_merge($b["captures"], $r["captures"]);
+				$protects = array_merge($b["protects"], $r["protects"]);
+				}
 			break;
 			
 			case "K":
@@ -543,16 +555,7 @@ class chess
 				}
 			break;
 			
-			case "Q":
-				{
-				# so getMovesQueen does both above functions
-				$b = $this->getBishopMoves($loc,$prev);
-				$r = $this->getRookMoves($loc,$prev);
-				
-				$moves = array_merge($b["moves"], $r["moves"]);
-				$captures = array_merge($b["captures"], $r["captures"]);
-				}
-			break;
+			
 			
 			case "N":
 				{
@@ -713,7 +716,7 @@ class chess
 			break;
 			}
 		
-		return array("moves"=>$moves,"captures"=>$captures);
+		return array("moves"=>$moves,"captures"=>$captures,"protects"=>$protects);
 		}
 	
 	public function getRank($loc = "e2")
