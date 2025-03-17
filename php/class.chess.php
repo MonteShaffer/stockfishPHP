@@ -17,6 +17,7 @@ class chess
 		
 		$this->board = array(); # by color, by rank/file ??
 		$this->score = array(); # "basic" is counter
+		$this->moveinfo = array(); # by color/piece 
 		
 
 
@@ -41,15 +42,15 @@ class chess
 		$loc = $this->letA[$x] . $this->numA[$y];
 		return $loc;
 		}
-	public function isBlank($loc="c3", $who="w")
+	public function isBlank($mloc="c3", $who="w")
 		{
-		$piece = $this->getPieceAtPosition($loc);
+		$piece = $this->getPieceAtPosition($mloc);
 		$color = $this->getPieceColor($piece);
-		echo"\n\n loc: $loc \t\t who: $who \t\t piece: $piece \t\t color: $color \n\n";
+		echo"\n\n mloc: $mloc \t\t who: $who \t\t piece: $piece \t\t color: $color \n\n";
 		if($piece == $this->blank) 
 			{ 
-			if($who == "w") { $this->whiteAttacks[] = $loc; }
-			if($who == "b") { $this->blackAttacks[] = $loc; }
+			if($who == "w") { $this->whiteAttacks[] = $mloc; }
+			if($who == "b") { $this->blackAttacks[] = $mloc; }
 			return "blank"; 
 			}
 		
@@ -57,8 +58,8 @@ class chess
 			{
 			return "self";
 			} else 	{ 
-					if($who == "w") { $this->whiteAttacks[] = $loc; }
-					if($who == "b") { $this->blackAttacks[] = $loc; }
+					if($who == "w") { $this->whiteAttacks[] = $mloc; }
+					if($who == "b") { $this->blackAttacks[] = $mloc; }
 					return "enemy"; 
 					}
 		}
@@ -77,6 +78,8 @@ class chess
 		
 		$fidx = array_search($file, $this->letA);
 		$ridx = array_search($rank, $this->numA);
+				
+		$moves = $captures = $protects = array();
 		
 		# loop through all options, stop on capture or edge of board or own piece 
 		# four directions ++,--,+-,-+
@@ -97,15 +100,15 @@ class chess
 			{
 				$x++;
 				$y++;
-			$loc = $this->isValidLocation($x,$y);
-			if(!$loc){ break; }
-			$status = $this->isBlank($loc, $color);
-			if($status == "blank") { $moves[] =  $loc; }
-			if($status == "self") { $protects[] = $loc; break; }
+			$mloc = $this->isValidLocation($x,$y);
+			if(!$mloc){ break; }
+			$status = $this->isBlank($mloc, $color);
+			if($status == "blank") { $moves[] =  $mloc; }
+			if($status == "self") { $protects[] = $mloc; break; }
 			if($status == "enemy") 
 				{
-				$moves[] =  $loc;
-				$captures[] = $loc; 
+				$moves[] =  $mloc;
+				$captures[] = $mloc; 
 				break;
 				}					
 			}
@@ -116,16 +119,16 @@ class chess
 			{
 			$x--; 
 			$y++; 
-			$loc = $this->isValidLocation($x,$y);
-			if(!$loc){ break; }
+			$mloc = $this->isValidLocation($x,$y);
+			if(!$mloc){ break; }
 			
-			$status = $this->isBlank($loc, $color);
-			if($status == "blank") { $moves[] =  $loc; }
-			if($status == "self") { $protects[] = $loc; break; }
+			$status = $this->isBlank($mloc, $color);
+			if($status == "blank") { $moves[] =  $mloc; }
+			if($status == "self") { $protects[] = $mloc; break; }
 			if($status == "enemy") 
 				{
-				$moves[] =  $loc;
-				$captures[] = $loc; 
+				$moves[] =  $mloc;
+				$captures[] = $mloc; 
 				break;
 				}	
 			}
@@ -137,16 +140,16 @@ class chess
 			$x++; 
 			$y--; 
 			
-			$loc = $this->isValidLocation($x,$y);
-			if(!$loc){ break; }
+			$mloc = $this->isValidLocation($x,$y);
+			if(!$mloc){ break; }
 			
-			$status = $this->isBlank($loc, $color);
-			if($status == "blank") { $moves[] =  $loc; }
-			if($status == "self") { $protects[] = $loc; break; }
+			$status = $this->isBlank($mloc, $color);
+			if($status == "blank") { $moves[] =  $mloc; }
+			if($status == "self") { $protects[] = $mloc; break; }
 			if($status == "enemy") 
 				{
-				$moves[] =  $loc;
-				$captures[] = $loc; 
+				$moves[] =  $mloc;
+				$captures[] = $mloc; 
 				break;
 				}	
 			}
@@ -159,17 +162,17 @@ class chess
 			$x--; 
 			$y--; 
 			
-			$loc = $this->isValidLocation($x,$y);
-			if(!$loc){ break; }
+			$mloc = $this->isValidLocation($x,$y);
+			if(!$mloc){ break; }
 			
 			
-			$status = $this->isBlank($loc, $color);
-			if($status == "blank") { $moves[] =  $loc; }
-			if($status == "self") { $protects[] = $loc; break; }
+			$status = $this->isBlank($mloc, $color);
+			if($status == "blank") { $moves[] =  $mloc; }
+			if($status == "self") { $protects[] = $mloc; break; }
 			if($status == "enemy") 
 				{
-				$moves[] =  $loc;
-				$captures[] = $loc; 
+				$moves[] =  $mloc;
+				$captures[] = $mloc; 
 				break;
 				}	
 			}
@@ -193,6 +196,7 @@ class chess
 		$ridx = array_search($rank, $this->numA);
 		
 		
+		$moves = $captures = $protects = array();
 		# loop through all options, stop on capture or edge of board or own piece 
 		# four directions +0,-0,0+,0-
 		
@@ -206,16 +210,16 @@ class chess
 		for($i = $fidx; $i < 7; $i++)
 			{
 			$x++; 
-			$loc = $this->isValidLocation($x,$y);
-			if(!$loc){ break; }
+			$mloc = $this->isValidLocation($x,$y);
+			if(!$mloc){ break; }
 			
-			$status = $this->isBlank($loc, $color);
-			if($status == "blank") { $moves[] =  $loc; }
-			if($status == "self") { $protects[] = $loc; break; }
+			$status = $this->isBlank($mloc, $color);
+			if($status == "blank") { $moves[] =  $mloc; }
+			if($status == "self") { $protects[] = $mloc; break; }
 			if($status == "enemy") 
 				{
-				$moves[] =  $loc;
-				$captures[] = $loc; 
+				$moves[] =  $mloc;
+				$captures[] = $mloc; 
 				break;
 				}					
 			}
@@ -225,16 +229,16 @@ class chess
 		for($i = $fidx; $i > 0; $i--)
 			{
 			$x--; 
-			$loc = $this->isValidLocation($x,$y);
-			if(!$loc){ break; }
+			$mloc = $this->isValidLocation($x,$y);
+			if(!$mloc){ break; }
 			
-			$status = $this->isBlank($loc, $color);
-			if($status == "blank") { $moves[] =  $loc; }
-			if($status == "self") { $protects[] = $loc; break; }
+			$status = $this->isBlank($mloc, $color);
+			if($status == "blank") { $moves[] =  $mloc; }
+			if($status == "self") { $protects[] = $mloc; break; }
 			if($status == "enemy") 
 				{
-				$moves[] =  $loc;
-				$captures[] = $loc; 
+				$moves[] =  $mloc;
+				$captures[] = $mloc; 
 				break;
 				}	
 			}
@@ -244,16 +248,16 @@ class chess
 		for($i = $ridx; $i < 7; $i++)
 			{
 			$y--; 
-			$loc = $this->isValidLocation($x,$y);
-			if(!$loc){ break; }
+			$mloc = $this->isValidLocation($x,$y);
+			if(!$mloc){ break; }
 			
-			$status = $this->isBlank($loc, $color);
-			if($status == "blank") { $moves[] =  $loc; }
-			if($status == "self") { $protects[] = $loc; break; }
+			$status = $this->isBlank($mloc, $color);
+			if($status == "blank") { $moves[] =  $mloc; }
+			if($status == "self") { $protects[] = $mloc; break; }
 			if($status == "enemy") 
 				{
-				$moves[] =  $loc;
-				$captures[] = $loc; 
+				$moves[] =  $mloc;
+				$captures[] = $mloc; 
 				break;
 				}	
 			}
@@ -264,15 +268,15 @@ class chess
 		for($i = $ridx; $i < 7; $i++)
 			{
 			$y++; 
-			$loc = $this->isValidLocation($x,$y);
-			if(!$loc){ break; }
-			$status = $this->isBlank($loc, $color);
-			if($status == "blank") { $moves[] =  $loc; }
-			if($status == "self") { $protects[] = $loc; break; }
+			$mloc = $this->isValidLocation($x,$y);
+			if(!$mloc){ break; }
+			$status = $this->isBlank($mloc, $color);
+			if($status == "blank") { $moves[] =  $mloc; }
+			if($status == "self") { $protects[] = $mloc; break; }
 			if($status == "enemy") 
 				{
-				$moves[] =  $loc;
-				$captures[] = $loc; 
+				$moves[] =  $mloc;
+				$captures[] = $mloc; 
 				break;
 				}	
 			}
@@ -300,7 +304,7 @@ class chess
 		$fidx = array_search($file, $this->letA);
 		$ridx = array_search($rank, $this->numA);
 		
-		$sign = ($color = "w") ? 1 : -1; # advance in "y" direction
+		$sign = ($color == "w") ? 1 : -1; # advance in "y" direction
 				
 				
 		### do isPinned logic at the beginning, no moves ... return empty 
@@ -314,6 +318,7 @@ class chess
 			# pawn (enpassant? this requires move history $prev)
 			default:
 			case "P":
+				{
 				# if white and on rank=2
 				# if black and on rank=7, can move forward 1/2 (if not blocked)
 				# can capture to ++ or -+
@@ -322,63 +327,63 @@ class chess
 				
 				# option 1 
 				$x = $fidx; $y = $ridx + 1*$sign;
-				$loc = $this->isValidLocation($x,$y);
-				if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+				if($mloc)
 					{ 
-					$status = $this->isBlank($loc, $color);
-					if($status == "blank") { $moves[] =  $loc; }
+					$status = $this->isBlank($mloc, $color);
+					if($status == "blank") { $moves[] =  $mloc; }
 					}
 						
 				# option 2 
 				$x = $fidx; $y = $ridx + 2*$sign;
 				if(($color == "w" && $rank == 2) || ($color == "b" && $rank == 7) )
 					{
-					$loc = $this->isValidLocation($x,$y);
-					if($loc)
+					$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						}
 					}	
 				
 				# option 3 (forward / sideOne)
 				$x = $fidx; $y = $ridx;
 				$x++; $y += 1*$sign;
-				$loc = $this->isValidLocation($x,$y);
-				if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+				if($mloc)
 					{ 
-					$status = $this->isBlank($loc, $color);
+					$status = $this->isBlank($mloc, $color);
 					if($status == "enemy") 
 						{
-						$moves[] =  $loc;
-						$captures[] = $loc; 
+						$moves[] =  $mloc;
+						$captures[] = $mloc; 
 						}
 					if($status == "self")
 						{
-						$protects[] = $loc;
+						$protects[] = $mloc;
 						}
 					}
 				
 				# option 4 (forward / sideTwo)
 				$x = $fidx; $y = $ridx;
 				$x--; $y += 1*$sign;
-				$loc = $this->isValidLocation($x,$y);
-				if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+				if($mloc)
 					{ 
-					$status = $this->isBlank($loc, $color);
+					$status = $this->isBlank($mloc, $color);
 					if($status == "enemy") 
 						{
-						$moves[] =  $loc;
-						$captures[] = $loc; 
+						$moves[] =  $mloc;
+						$captures[] = $mloc; 
 						}
 					if($status == "self")
 						{
-						$protects[] = $loc;
+						$protects[] = $mloc;
 						}
 					}
 					
 				# option 5/6 forward "enpassant"
-			
+				}
 			break;
 			
 			case "B":
@@ -414,140 +419,158 @@ class chess
 				# after board is built, we do a second pass to prune possible moves (if the piece is protected ... colorAttacking the square of the piece ... OR if the square is blank by colorAttacking ... invalid move related to CHECK ...
 				# do a once-removed recursion of a similar board (cloned to see for isPinned???
 				
+				
+				echo"\n ########### KING loc $loc color $color ########### \n";
+				
 				# option 1 (-1,1) TopLeft for white
 				$x = $fidx - 1; $y = $ridx + 1 *$sign;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						echo"\n\n 1 KING $loc ($mloc) $color :: $status \n\n";
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc; # with king, maybe not fully protected
+							$protects[] = $mloc; # with king, maybe not fully protected
 							}
 						}
 				# option 2 (0,1) Top for white
 				$x = $fidx; $y = $ridx + 1 *$sign;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						
+						echo"\n\n 2 KING $loc ($mloc) $color :: $status \n\n";
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 				# option 3 (1,1) TopRight for white
 				$x = $fidx+1; $y = $ridx + 1 *$sign;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						
+						echo"\n\n 3 KING $loc ($mloc) $color :: $status \n\n";
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 				# option 4 (-1,-1) BottomLeft for white
 				$x = $fidx - 1; $y = $ridx - 1 *$sign;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						
+						echo"\n\n 4 KING $loc ($mloc) $color :: $status \n\n";
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 				# option 5 (0,-1) Bottom for white
 				$x = $fidx; $y = $ridx - 1 *$sign;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						
+						echo"\n\n 5 KING $loc ($mloc) $color :: $status \n\n";
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 				# option 6 (1,-1) BottomRight for white
 				$x = $fidx+1; $y = $ridx - 1 *$sign;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						
+						echo"\n\n 6 KING $loc ($mloc) $color :: $status \n\n";
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 				# option 7 (-1,0) Left for white
 				$x = $fidx - 1; $y = $ridx;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						
+						echo"\n\n 7 KING $loc ($mloc) $color :: $status \n\n";
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 				# option 8 (1,0) Right for white
 				$x = $fidx + 1; $y = $ridx;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						
+						echo"\n\n 8 KING $loc ($mloc) $color :: $status \n\n";
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 				
@@ -565,146 +588,146 @@ class chess
 				$x = $fidx + 1; $y = $ridx + 2;
 				# isValid 
 				# isBlank 
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 
 				
 				# option 2 
 				$x = $fidx + 2; $y = $ridx + 1;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 						
 				# option 3 
 				$x = $fidx + 1; $y = $ridx - 2;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 						
 				# option 4 
 				$x = $fidx + 2; $y = $ridx - 1;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 						
 				# option 5 
 				$x = $fidx - 1; $y = $ridx + 2;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 						
 				# option 6 
 				$x = $fidx - 2; $y = $ridx + 1;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 						
 				# option 7 
 				$x = $fidx - 1; $y = $ridx - 2;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 						
 				# option 8 
 				$x = $fidx - 2; $y = $ridx - 1;
-				$loc = $this->isValidLocation($x,$y);
-					if($loc)
+				$mloc = $this->isValidLocation($x,$y);
+					if($mloc)
 						{ 
-						$status = $this->isBlank($loc, $color);
-						if($status == "blank") { $moves[] =  $loc; }
+						$status = $this->isBlank($mloc, $color);
+						if($status == "blank") { $moves[] =  $mloc; }
 						if($status == "enemy") 
 							{
-							$moves[] =  $loc;
-							$captures[] = $loc; 
+							$moves[] =  $mloc;
+							$captures[] = $mloc; 
 							}
 						if($status == "self")
 							{
-							$protects[] = $loc;
+							$protects[] = $mloc;
 							}
 						}
 				
@@ -743,7 +766,7 @@ class chess
 		}
 	public function getPieceColor($piece)
 		{		
-		$color = "";
+		$color = $this->blank;
 		if($piece !== $this->blank) # blank 
 			{
 			$color = ctype_upper($piece) ? "b" : "w"; # black or white 	
@@ -762,8 +785,38 @@ class chess
 		
 	public function fromUCI($uci = "e2e4") {}
 		
-	public function basicAnalysis() {}
-	# loop over getPossibleMoves per piece ...
+	public function basicAnalysis() 
+		{
+		$this->moveinfo["moves"] = array("w"=>array(), "b"=>array());
+		# loop over getPossibleMoves per piece ...
+		foreach($this->board["pieces"]["w"] as $piece=>$locs)
+			{
+			foreach($locs as $loc)
+				{
+				echo"\n ################ loc: $loc ################ \n";
+				$info = $this->getPossibleMoves($loc);
+				$this->moveinfo["w"][$loc] = $info;
+				if(sizeof($info["moves"]) > 0)
+					{
+					$this->moveinfo["moves"]["w"][] = $loc;
+					}
+				}
+			}
+		foreach($this->board["pieces"]["b"] as $piece=>$locs)
+			{
+			foreach($locs as $loc)
+				{
+				echo"\n ################ loc: $loc ################ \n";
+				
+				$info = $this->getPossibleMoves($loc);
+				$this->moveinfo["b"][$loc] = $info;
+				if(sizeof($info["moves"]) > 0)
+					{
+					$this->moveinfo["moves"]["b"][] = $loc;
+					}
+				}
+			}
+		}
 	
 	public function basicScorePiece($piece)
 		{
@@ -830,6 +883,8 @@ class chess
 				$this->board["rank"][$num][$let] = $this->board["file"][$let][$num] = $what;	
 
 				$color = $this->getPieceColor($what);
+				
+				$this->board["pieces"][$color][$what][] = $let.$num;
 				
 				$this->score["basic"][$color] += $this->basicScorePiece($what);
 				}
