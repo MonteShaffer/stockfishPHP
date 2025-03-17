@@ -16,7 +16,7 @@ class chess
 		$this->debug 	= false;
 		
 		$this->board = array(); # by color, by rank/file ??
-		
+		$this->score = array(); # "basic" is counter
 		
 
 
@@ -762,8 +762,46 @@ class chess
 		
 	public function fromUCI($uci = "e2e4") {}
 		
+	public function basicAnalysis() {}
+	# loop over getPossibleMoves per piece ...
+	
+	public function basicScorePiece($piece)
+		{
+		$P = strtoupper($piece);
+		switch($P)
+			{
+			default: // blank
+				$score = -1;
+			break;
+			
+			case "P":
+				$score = 1;
+			break;
+			
+			case "N":
+			case "B":
+				$score = 3;
+			break;
+			
+			case "R":
+				$score = 5;
+			break;
+			
+			case "Q":
+				$score = 9;
+			break;
+			
+			case "K":
+				$score = 0;
+			break;
+			}
+		return $score;
+		}
 	public function setupBoard($fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 		{
+		$this->score["basic"][$this->blank] = 0;
+		$this->score["basic"]["w"] = 0;
+		$this->score["basic"]["b"] = 0;
 		
 		$tmp = explode("/", $fen);
 		$tmp2 = explode(" ", $tmp[7]);
@@ -788,8 +826,12 @@ class chess
 			$dat = str_split($row);
 			foreach($this->letA as $k=>$let)
 				{
-				$what = $dat[$k];
-				$this->board["rank"][$num][$let] = $this->board["file"][$let][$num] = $what;				
+				$what = $dat[$k];				
+				$this->board["rank"][$num][$let] = $this->board["file"][$let][$num] = $what;	
+
+				$color = $this->getPieceColor($what);
+				
+				$this->score["basic"][$color] += $this->basicScorePiece($what);
 				}
 			}		
 		}
