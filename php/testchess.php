@@ -47,6 +47,9 @@ $color = $chess->getPieceColor($piece);
 echo"<PRE>"; print_r($piece); print_r("\t\t\t"); print_r($color);
 */
 
+
+$chess->toUCI();
+
 $chess->close();
 
 print_r($chess);
